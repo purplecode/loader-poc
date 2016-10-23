@@ -1,47 +1,155 @@
+var settings = {
+    svg: {
+        width: 800,
+        height: 500
+    },
+    stroke: {
+        width: 3,
+        color: 'darkgray'
+    },
+    belt: {
+        x: 100,
+        y: 300,
+        skew: 40,
+        height: 30,
+        width: 600,
+        lines: {
+            // adjust animation when changed
+            n: 10
+        },
+        cogs: {
+            n: 7,
+            radius: 15,
+            padding: 4
+        }
+    }
+};
+
+var data = {
+    belt: {
+        lines: {
+            fixed: () => {
+                var x = settings.belt.x,
+                    y = settings.belt.y,
+                    width = settings.belt.width,
+                    height = settings.belt.height,
+                    skew = settings.belt.skew;
+                var fix = 5;
+                return [
+                    // horizontal
+                    {
+                        x1: x + skew - fix,
+                        y1: y - height,
+                        x2: x + skew + width,
+                        y2: y - height
+                    }, {
+                        x1: x,
+                        y1: y,
+                        x2: x + width,
+                        y2: y
+                    }, {
+                        x1: x,
+                        y1: y + height,
+                        x2: x + width,
+                        y2: y + height
+                    },
+                    // skew
+                    {
+                        x1: x - fix,
+                        y1: y,
+                        x2: x - fix + skew,
+                        y2: y - height
+                    }, {
+                        x1: x + width,
+                        y1: y,
+                        x2: x + skew + width,
+                        y2: y - height
+                    }, {
+                        x1: x + width + fix,
+                        y1: y + height,
+                        x2: x + skew + width + fix,
+                        y2: y
+                    }]
+            },
+            animated: () => {
+                var n = settings.belt.lines.n;
+                var shift = settings.belt.width / n;
+                return _.range(1, n + 1).map(idx => ({
+                    x1: settings.belt.x + idx * shift,
+                    y1: settings.belt.y,
+                    x2: settings.belt.x + idx * shift + settings.belt.skew,
+                    y2: settings.belt.y - settings.belt.height
+                }))
+            }
+        },
+        cogs: () => {
+            var n = settings.belt.cogs.n;
+            var shift = settings.belt.width / (n - 1);
+            return _.range(0, n).map(idx => ({
+                x: settings.belt.x + idx * shift,
+                y: settings.belt.y + settings.belt.height / 2
+            }))
+        }
+    }
+};
+
 var svg = d3.select('svg')
-    .attr('width', 800)
-    .attr('height', 500);
+    .attr('width', settings.svg.width)
+    .attr('height', settings.svg.height);
 
 var conveyorBelt = svg.append('g');
-var lines = conveyorBelt
+
+conveyorBelt
     .append('g')
+    .attr('class', 'belt-fixed')
     .selectAll('line')
-    .data([
-        {x1: 140, y1: 260, x2: 740, y2: 260},
-        {x1: 100, y1: 300, x2: 700, y2: 300},
-        {x1: 100, y1: 330, x2: 700, y2: 330}
-    ])
+    .data(data.belt.lines.fixed)
     .enter()
     .append('line')
     .attr('x1', d => d.x1)
     .attr('y1', d => d.y1)
     .attr('x2', d => d.x2)
     .attr('y2', d => d.y2)
-    .attr("stroke-width", 2)
-    .attr("stroke", "black");
+    .attr("stroke-width", settings.stroke.width)
+    .attr("stroke", settings.stroke.color);
 
-var circlesData = _.range(0, 7).map(idx => ({
-    x: 100 + idx * 100, y: 315, radius: 15
-}));
+conveyorBelt
+    .append('g')
+    .attr('class', 'belt-animated')
+    .selectAll('line')
+    .data(data.belt.lines.animated)
+    .enter()
+    .append('line')
+    .attr('x1', d => d.x1)
+    .attr('y1', d => d.y1)
+    .attr('x2', d => d.x2)
+    .attr('y2', d => d.y2)
+    .attr("stroke-width", settings.stroke.width)
+    .attr("stroke", settings.stroke.color);
 
-var circles = conveyorBelt.append('g')
+
+conveyorBelt.append('g')
     .selectAll('circle')
-    .data(circlesData)
+    .data(data.belt.cogs)
     .enter()
     .append('circle')
     .attr('cx', d => d.x)
     .attr('cy', d=> d.y)
-    .attr('r', d=> d.radius)
+    .attr('r', settings.belt.cogs.radius)
     .style('fill', 'white')
-    .attr("stroke-width", 2)
-    .attr("stroke", "black");
+    .attr("stroke-width", settings.stroke.width)
+    .attr("stroke", settings.stroke.color);
 
-var cogs = conveyorBelt.append('g')
+conveyorBelt.append('g')
     .selectAll('.cog')
-    .data(circlesData)
+    .data(data.belt.cogs)
     .enter()
     .append('g')
-    .attr('transform', d => `translate(${d.x - 13},${d.y - 13})`)
+    .attr('transform', d => {
+        var r = settings.belt.cogs.radius - settings.belt.cogs.padding;
+        return `translate(${d.x - r},${d.y - r})`
+    })
     .append('path')
     .attr('class', 'cog')
-    .attr("d", d => cog(26));
+    .attr('fill', settings.stroke.color)
+    .attr("d", d => cog((settings.belt.cogs.radius - settings.belt.cogs.padding) * 2));

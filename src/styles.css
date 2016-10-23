@@ -4,12 +4,22 @@
 }
 
 .cog {
-    animation: rotate 4s linear infinite;
+    animation: rotate 2s linear infinite;
     transform-origin: 50%;
 }
 
 @keyframes rotate {
     100% {
         transform: rotate(-360deg);
+    }
+}
+
+.belt-animated line {
+    animation: belt 0.5s linear infinite;
+}
+
+@keyframes belt {
+    100% {
+        transform: translate(-60px, 0);
     }
 }
