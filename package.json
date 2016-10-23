@@ -1,0 +1,10 @@
+{
+  "name": "amazon-spinner",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^4.2.8",
+    "lodash": "^4.16.4"
+  }
+}
