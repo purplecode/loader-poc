@@ -74,7 +74,7 @@ var data = {
             animated: () => {
                 var n = settings.belt.lines.n;
                 var shift = settings.belt.width / n;
-                return _.range(1, n + 1).map(idx => ({
+                return _.range(0, n).map(idx => ({
                     x1: settings.belt.x + idx * shift,
                     y1: settings.belt.y,
                     x2: settings.belt.x + idx * shift + settings.belt.skew,
@@ -90,12 +90,35 @@ var data = {
                 y: settings.belt.y + settings.belt.height / 2
             }))
         }
-    }
+    },
+    machine: [{
+        x: 0, y: 50, width: 200, height: 350, fill: 'white'
+    }, {
+        x: 30, y: 120, width: 140, height: 250, fill: 'white'
+    }, {
+        x: 70, y: 260, width: 200, height: 80, fill: 'white', stroke: 'white'
+    }]
 };
 
 var svg = d3.select('svg')
     .attr('width', settings.svg.width)
     .attr('height', settings.svg.height);
+
+var machine = svg.append('g').attr('class', 'machine');
+
+machine.append('g')
+    .selectAll('rect')
+    .data(data.machine)
+    .enter()
+    .append("rect")
+    .attr("x", d => d.x)
+    .attr("y", d => d.y)
+    .attr("width", d => d.width)
+    .attr("height", d => d.height)
+    .style('fill', d => d.fill)
+    .attr("stroke-width", settings.stroke.width)
+    .attr("stroke", d => d.stroke || settings.stroke.color);
+
 
 var conveyorBelt = svg.append('g');
 
@@ -127,7 +150,6 @@ conveyorBelt
     .attr("stroke-width", settings.stroke.width)
     .attr("stroke", settings.stroke.color);
 
-
 conveyorBelt.append('g')
     .selectAll('circle')
     .data(data.belt.cogs)
@@ -153,3 +175,6 @@ conveyorBelt.append('g')
     .attr('class', 'cog')
     .attr('fill', settings.stroke.color)
     .attr("d", d => cog((settings.belt.cogs.radius - settings.belt.cogs.padding) * 2));
+
+
+
