@@ -3,6 +3,7 @@
     display: block;
 }
 
+/* cogs */
 .cog {
     animation: rotate 2s linear infinite;
     transform-origin: 50%;
@@ -14,8 +15,9 @@
     }
 }
 
+/* conveyor belt */
 .belt-animated line {
-    animation: belt 0.5s linear infinite;
+    animation: belt 0.28s linear infinite;
 }
 
 @keyframes belt {
@@ -24,6 +26,7 @@
     }
 }
 
+/* machine */
 .machine {
     transform: skewY(-38deg)translate(15px, 110px);
 }
@@ -31,3 +34,39 @@
 .machine rect:last-child {
     transform: skewY(38deg)translate(20px, -96px);
 }
+
+/* packages */
+#package-0, #package-1, #package-2 {
+    transform: translate(-50px, 0);
+    opacity: 0;
+}
+
+#package-0 {
+    animation: package 3s linear infinite;
+}
+
+#package-1 {
+    animation: package 3s linear infinite 1s;
+}
+
+#package-2 {
+    animation: package 3s linear infinite 2s;
+}
+
+
+@keyframes package {
+    0% {
+        transform: translate(-50px, 0);
+        opacity: 0.3;
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(600px, 0);
+        opacity: 1;
+    }
+}
+
+
+

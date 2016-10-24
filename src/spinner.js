@@ -1,7 +1,9 @@
+"use strict";
+
 var settings = {
     svg: {
         width: 800,
-        height: 500
+        height: 800
     },
     stroke: {
         width: 3,
@@ -9,7 +11,7 @@ var settings = {
     },
     belt: {
         x: 100,
-        y: 300,
+        y: 350,
         skew: 40,
         height: 30,
         width: 600,
@@ -27,60 +29,58 @@ var settings = {
 
 var data = {
     belt: {
-        lines: {
-            fixed: () => {
-                var x = settings.belt.x,
-                    y = settings.belt.y,
-                    width = settings.belt.width,
-                    height = settings.belt.height,
-                    skew = settings.belt.skew;
-                var fix = 5;
-                return [
-                    // horizontal
-                    {
-                        x1: x + skew - fix,
-                        y1: y - height,
-                        x2: x + skew + width,
-                        y2: y - height
-                    }, {
-                        x1: x,
-                        y1: y,
-                        x2: x + width,
-                        y2: y
-                    }, {
-                        x1: x,
-                        y1: y + height,
-                        x2: x + width,
-                        y2: y + height
-                    },
-                    // skew
-                    {
-                        x1: x - fix,
-                        y1: y,
-                        x2: x - fix + skew,
-                        y2: y - height
-                    }, {
-                        x1: x + width,
-                        y1: y,
-                        x2: x + skew + width,
-                        y2: y - height
-                    }, {
-                        x1: x + width + fix,
-                        y1: y + height,
-                        x2: x + skew + width + fix,
-                        y2: y
-                    }]
-            },
-            animated: () => {
-                var n = settings.belt.lines.n;
-                var shift = settings.belt.width / n;
-                return _.range(0, n).map(idx => ({
-                    x1: settings.belt.x + idx * shift,
-                    y1: settings.belt.y,
-                    x2: settings.belt.x + idx * shift + settings.belt.skew,
-                    y2: settings.belt.y - settings.belt.height
-                }))
-            }
+        fixed: () => {
+            var x = settings.belt.x,
+                y = settings.belt.y,
+                width = settings.belt.width,
+                height = settings.belt.height,
+                skew = settings.belt.skew;
+            var fix = 5;
+            return [
+                // horizontal
+                {
+                    x1: x + skew - fix,
+                    y1: y - height,
+                    x2: x + skew + width,
+                    y2: y - height
+                }, {
+                    x1: x,
+                    y1: y,
+                    x2: x + width,
+                    y2: y
+                }, {
+                    x1: x,
+                    y1: y + height,
+                    x2: x + width,
+                    y2: y + height
+                },
+                // skew
+                {
+                    x1: x - fix,
+                    y1: y,
+                    x2: x - fix + skew,
+                    y2: y - height
+                }, {
+                    x1: x + width,
+                    y1: y,
+                    x2: x + skew + width,
+                    y2: y - height
+                }, {
+                    x1: x + width + fix,
+                    y1: y + height,
+                    x2: x + skew + width + fix,
+                    y2: y
+                }]
+        },
+        animated: () => {
+            var n = settings.belt.lines.n;
+            var shift = settings.belt.width / n;
+            return _.range(0, n).map(idx => ({
+                x1: settings.belt.x + idx * shift,
+                y1: settings.belt.y,
+                x2: settings.belt.x + idx * shift + settings.belt.skew,
+                y2: settings.belt.y - settings.belt.height
+            }))
         },
         cogs: () => {
             var n = settings.belt.cogs.n;
@@ -92,12 +92,36 @@ var data = {
         }
     },
     machine: [{
-        x: 0, y: 50, width: 200, height: 350, fill: 'white'
+        x: 0, y: 100, width: 200, height: 350, fill: 'white'
     }, {
-        x: 30, y: 120, width: 140, height: 250, fill: 'white'
+        x: 30, y: 170, width: 140, height: 250, fill: 'white'
     }, {
-        x: 70, y: 260, width: 200, height: 80, fill: 'white', stroke: 'white'
-    }]
+        x: 70, y: 310, width: 200, height: 80, fill: 'white', stroke: 'white'
+    }],
+    packages: () => {
+        var x = settings.belt.x,
+            y = settings.belt.y - 5,
+            sy = settings.belt.height / 2,
+            sx = settings.belt.skew / 2;
+
+        function box(w, h) {
+            return `
+            ${x},${y} 
+            ${w + x},${y} 
+            ${w + x},${y - h} 
+            ${x},${y - h} 
+            ${x},${y} 
+            ${w + x},${y} 
+            ${w + sx + x},${y - sy} 
+            ${w + sx + x},${y - h - sy} 
+            ${w + x},${y - h} 
+            ${w + sx + x},${y - h - sy} 
+            ${sx + x},${y - h - sy} 
+            ${x},${y - h}`;
+        }
+
+        return [box(100, 80), box(50, 100), box(70, 70)];
+    }
 };
 
 var svg = d3.select('svg')
@@ -126,7 +150,7 @@ conveyorBelt
     .append('g')
     .attr('class', 'belt-fixed')
     .selectAll('line')
-    .data(data.belt.lines.fixed)
+    .data(data.belt.fixed)
     .enter()
     .append('line')
     .attr('x1', d => d.x1)
@@ -140,7 +164,7 @@ conveyorBelt
     .append('g')
     .attr('class', 'belt-animated')
     .selectAll('line')
-    .data(data.belt.lines.animated)
+    .data(data.belt.animated)
     .enter()
     .append('line')
     .attr('x1', d => d.x1)
@@ -177,4 +201,18 @@ conveyorBelt.append('g')
     .attr("d", d => cog((settings.belt.cogs.radius - settings.belt.cogs.padding) * 2));
 
 
+var packages = svg.append('g')
+    .attr('class', 'packages');
+
+packages
+    .selectAll('polygon')
+    .data(data.packages)
+    .enter()
+    .append('polygon')
+    .attr('points', d => d)
+    .attr('id', (d, i) => `package-${i}`)
+    .attr('fill', 'white')
+    .attr("stroke-width", settings.stroke.width)
+    .attr("stroke", settings.stroke.color)
+    .attr("stroke-linejoin", 'round');
 
