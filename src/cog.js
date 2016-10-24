@@ -1,3 +1,5 @@
+/* Code based on: http://jxnblk.com/react-icons/ */
+
 function cog(size) {
     var props = {
         d1: 1,
